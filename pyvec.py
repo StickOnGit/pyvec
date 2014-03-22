@@ -14,7 +14,7 @@ from starbg import star_bg
 
 pygame.init()
 
-FPS = 60
+FPS = 30
 FPSCLOCK = pygame.time.Clock()
 
 TRANSUNIT = vview.DEPTH / (FPS * 2)
@@ -23,9 +23,9 @@ SPINUNIT = (2 * 3.14159) / (FPS * 2)
 		
 vview.set_hzpt((vview.WIDTH/2, vview.HEIGHT/2))
 
-def prism(x, y, z):
-	return [Zpt(x, y, z), Zpt(x+15, y+15, z), Zpt(x-15, y+15, z), 
-		Zpt(x, y, z+30), Zpt(x+15, y+15, z+30), Zpt(x-15, y+15, z+30)]
+#def prism(x, y, z):
+#	return [Zpt(x, y, z), Zpt(x+15, y+15, z), Zpt(x-15, y+15, z), 
+#		Zpt(x, y, z+30), Zpt(x+15, y+15, z+30), Zpt(x-15, y+15, z+30)]
 
 def shot_shape(x, y, z):
 	return [Zpt(x, y, z), Zpt(x-10, y, z+35), Zpt(x, y, z+45), Zpt(x+10, y, z+35), Zpt(x, y-10, z+35)]
@@ -83,15 +83,35 @@ zarena = [Zpt(0, 0, 0), Zpt(vview.WIDTH, 0, 0), Zpt(vview.WIDTH, vview.HEIGHT, 0
 		Zpt(0, 0, vview.DEPTH), Zpt(vview.WIDTH, 0, vview.DEPTH), Zpt(vview.WIDTH, vview.HEIGHT, vview.DEPTH), Zpt(0, vview.HEIGHT, vview.DEPTH)]
 
 
-GUY = shapef.cube(500, 0, 300)
-GUYTWO = shapef.cube(650, 0, 300)
+SAUCER = shapef.disc(x=500, y=0, z=320, rad=120)
+NECK_PORT = shapef.reg_poly(x=497, y=20, z=280, sides=4, rad=20)
+NECK_PORT.good_rotate(math.pi/2, 'y')
+NECK_PORT.zpts[2].z += 15
+NECK_PORT.zpts[0].z -= 15
+NECK_STAR = shapef.reg_poly(x=503, y=20, z=280, sides=4, rad=20)
+NECK_STAR.good_rotate(math.pi/2, 'y')
+NECK_STAR.zpts[2].z += 15
+NECK_STAR.zpts[0].z -= 15
+STARDRIVE = shapef.prism(x=500, y=40, z=250, sides=12, lng=25, dep=100)
+###port nacelle
+PORT_NAC = shapef.prism(x=450, y=-20, z=160, sides=12, lng=20, dep=180)
 
-GUYTHR = Wireframe(zpts=wing(60, 60, 60, 1.5), color=(50, 80, 50))
-GUYTHR.set_lines((0, 1, 2))
-GUYTHR.set_lines((1, 2, 3))
-GUYTHR.set_line(0, 3)
+PORT_PYLON = shapef.reg_poly(x=475, y=10, z=240, sides=4, rad=40)
+PORT_PYLON.good_rotate(math.pi/2, 'y')
+PORT_PYLON.good_rotate(math.pi/-4, 'z')
+PORT_PYLON.zpts[2].z -= 35
+PORT_PYLON.zpts[1].z -= 35
+###starboard nacelle
+STAR_NAC = shapef.prism(x=550, y=-20, z=160, sides=12, lng=20, dep=180)
 
-playerObj = Multiframe(wfs=(GUY, GUYTWO))
+STAR_PYLON = shapef.reg_poly(x=525, y=10, z=240, sides=4, rad=40)
+STAR_PYLON.good_rotate(math.pi/2, 'y')
+STAR_PYLON.good_rotate(math.pi/4, 'z')
+STAR_PYLON.zpts[2].z -= 35
+STAR_PYLON.zpts[1].z -= 35
+
+
+playerObj = Multiframe(wfs=(SAUCER, NECK_PORT, NECK_STAR, STARDRIVE, PORT_PYLON, PORT_NAC, STAR_PYLON, STAR_NAC))
 
 def engine_flare(obj, func):
 	def inner(*args, **kwargs):
@@ -143,25 +163,25 @@ def rotor(obj, func, radians=0, ignore='x'):
 	return inner
 	
 
-playerObj.frames[1].update = rotor(playerObj.frames[1], playerObj.frames[1].update, .2, 'y')
-for frame in playerObj.frames:
-	frame.update = engine_flare(frame, frame.update)
+#playerObj.frames[1].update = rotor(playerObj.frames[1], playerObj.frames[1].update, .2, 'y')
+#for frame in playerObj.frames:
+#	frame.update = engine_flare(frame, frame.update)
 
-BAD_GUY = Wireframe(zpts=pymd(500, 250, 200, 30), color=(40, 40, 140))
+"""BAD_GUY = Wireframe(zpts=pymd(500, 250, 200, 30), color=(40, 40, 140))
 BAD_GUY.set_lines((0, 1, 2))
 BAD_GUY.set_lines((2, 3, 1), False)
 BAD_GUY.set_line(0, 3)
 badObj = Multiframe(wfs=BAD_GUY)
 
 badObj.yspin = 2 * SPINUNIT
-
-BAD_TWO = Wireframe(zpts=prism(400, 100, 10), color=(150, 150, 20))
-BAD_TWO.set_lines((0, 1, 2))
-BAD_TWO.set_lines((3, 4, 5))
-BAD_TWO.set_line(0, 3)
-BAD_TWO.set_line(1, 4)
-BAD_TWO.set_line(2, 5)
-badObjTwo = Multiframe(wfs=BAD_TWO)
+"""
+#BAD_TWO = Wireframe(zpts=shapef.prism(400, 100, 10), color=(150, 150, 20))
+#BAD_TWO.set_lines((0, 1, 2))
+#BAD_TWO.set_lines((3, 4, 5))
+#BAD_TWO.set_line(0, 3)
+#BAD_TWO.set_line(1, 4)
+#BAD_TWO.set_line(2, 5)
+badObjTwo = Multiframe(wfs=shapef.prism(400, 100, 10, 12, 50))
 
 #badObjTwo.xtrans = 5
 #badObjTwo.ytrans = 10
@@ -217,7 +237,7 @@ def to_draw_q(obj):
 		DRAWQ.add(obj)
 
 good_visible(playerObj)
-bad_visible(badObj, badObjTwo)
+#bad_visible(badObjTwo)
 only_visible(star_bg())
 
 def main():

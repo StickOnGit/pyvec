@@ -63,17 +63,11 @@ class Wireframe(pygame.sprite.Sprite):
 		if ctr is None:
 			ctr = self.center
 		for zpt in self.zpts:
-			##x = zpt.x - ctr.x
-			##y = zpt.y - ctr.y
-			##z = zpt.z - ctr.z
 			if ignore == 'x':
-				##vals = (y, z)
 				vals = (zpt.y - ctr.y, zpt.z - ctr.z)
 			elif ignore == 'y':
-				##vals = (x, z)
 				vals = (zpt.x - ctr.x, zpt.z - ctr.z)
 			elif ignore == 'z':
-				##vals = (y, x)
 				vals = (zpt.y - ctr.y, zpt.x - ctr.x)
 			v1, v2 = vals
 			d = math.hypot(v1, v2)
@@ -89,12 +83,11 @@ class Wireframe(pygame.sprite.Sprite):
 				zpt.y = ctr.y + d * math.sin(theta)
 		self.own_ctr()
 		
-	def is_pt_tied(self, pt1, pt2):
-		"""Checks to see if pt1 is in a shape with pt2. Does NOT mean
-		they share a line (wireframe objects don't track lines right now."""
+	def pts_are_tied(self, pt1, pt2):
+		"""Checks to see if two points are in a line."""
 		answer = False
-		for shape in self.shapes:
-			if pt1 in shape and pt2 in shape:
+		for line in self.lines:
+			if pt1 in line and pt2 in line:
 				answer = True
 			else: pass
 		return answer

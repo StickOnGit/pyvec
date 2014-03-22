@@ -106,15 +106,18 @@ F_O_V = 5
 
 def use_hzpt_pos(zpt):
 	"""Definitely the best as of 03/10/14."""
-	cartX = zpt.x - H_ZPT.x
-	cartY = -zpt.y + H_ZPT.y
-	zdist = abs(CAM_PT.z - zpt.z)**2
-	zoff = camToDepth / (zdist/(camToDepth/GOLD))
+	##cartX = zpt.x - H_ZPT.x
+	##cartY = -zpt.y + H_ZPT.y
+	##zdist = abs(CAM_PT.z - zpt.z)**2
+	##zoff = camToDepth / (zdist/(camToDepth/GOLD))
+	zoff = camToDepth / ((abs(CAM_PT.z - zpt.z)**2)/(camToDepth/GOLD))
 	zinv = 1.0 - zoff
 	xoff = 1.0 - ((abs(zpt.x - H_ZPT.x)) / WIDTH)/ F_O_V
 	yoff = 1.0 - ((abs(zpt.y - H_ZPT.y)) / HEIGHT)/ F_O_V
-	newX = ((cartX * xoff) + H_ZPT.x) * zoff + (WIDTH * HOR_X * zinv)
-	newY = ((H_ZPT.y) - (cartY * yoff)) * zoff + (HEIGHT * HOR_Y * zinv)
+	##newX = ((cartX * xoff) + H_ZPT.x) * zoff + (WIDTH * HOR_X * zinv)
+	##newY = ((H_ZPT.y) - (cartY * yoff)) * zoff + (HEIGHT * HOR_Y * zinv)
+	newX = (((zpt.x - H_ZPT.x) * xoff) + H_ZPT.x) * zoff + (WIDTH * HOR_X * zinv)
+	newY = ((H_ZPT.y) - ((-zpt.y + H_ZPT.y) * yoff)) * zoff + (HEIGHT * HOR_Y * zinv)
 	return (newX, newY)
 	
 def new_shape(shape):

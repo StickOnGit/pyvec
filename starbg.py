@@ -61,12 +61,12 @@ def star_line_update(obj, func):
 	return inner
 
 
-def star_bg(speed=30):
+def star_bg(speed=60):
 	starlist = []
 	for i in range(0, 40):
 		newx, newy = x_or_y()
 		newz = random.choice(starz)
-		star_wf = Wireframe(zpts=(Zpt(newx, newy, newz), Zpt(newx, newy, newz + (speed*1.5))), width=1)
+		star_wf = Wireframe(zpts=(Zpt(newx, newy, newz), Zpt(newx, newy, newz + (speed*.8))), width=1)
 		star_wf.set_line(0, 1)
 		star_wf.ztrans = -speed
 		star_wf.update = star_line_update(star_wf, star_wf.update)
