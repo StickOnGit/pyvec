@@ -6,9 +6,7 @@ class Wireframe(pygame.sprite.Sprite):
 	def __init__(self, zpts, color=(26, 80, 100), width=2):
 		pygame.sprite.Sprite.__init__(self)
 		self.zpts = [pt for pt in zpts]
-		#self.zpts = set(zpt for zpt in zpts)
 		self.shapes = []
-		#self.lines = []
 		self.lines = set()
 		self.color = color
 		self.width = width
@@ -22,7 +20,6 @@ class Wireframe(pygame.sprite.Sprite):
 		
 	def set_line(self, ptindex1, ptindex2):
 		"""Set a line by the index of the point within obj.zpts list."""
-		#self.lines.append((self.zpts[ptindex1], self.zpts[ptindex2]))
 		self.lines.add((self.zpts[ptindex1], self.zpts[ptindex2]))
 		
 	def set_lines(self, pts, connect=True):

@@ -1,5 +1,5 @@
 import pygame
-import math
+from math import hypot, atan2, sin, cos
 from zpt import Zpt
 from wireframe import Wireframe as Wf
 
@@ -33,10 +33,6 @@ class Multiframe(pygame.sprite.Sprite):
 		if xyz is not None:
 			self.ctr = Zpt(xyz[0], xyz[1], xyz[2])
 		else:
-			#allshapes = len(self.frames)
-			#newX = sum([frame.center.x for frame in self.frames]) / allshapes
-			#newY = sum([frame.center.y for frame in self.frames]) / allshapes
-			#newZ = sum([frame.center.z for frame in self.frames]) / allshapes
 			allshapes = len(self.all_pts)
 			newX = sum([zpt.x for zpt in self.all_pts]) / allshapes
 			newY = sum([zpt.y for zpt in self.all_pts]) / allshapes
@@ -48,16 +44,14 @@ class Multiframe(pygame.sprite.Sprite):
 		leny = abs(p1.y - p2.y)
 		lenz = abs(p1.z - p2.z)
 		rootme = lenx**2 + leny**2 + lenz**2
-		###return math.sqrt(rootme) ###distance squared
 		return rootme
 	
 	def set_zradius(self):
 		possible_zrads = []
-		##for frame in self.frames:
 		for zpt in self.all_pts:
 			possible_zrads.append(self.get_zlen(zpt, self.ctr))
 		self.zradius = max(possible_zrads)
-		#print self.zradius
+		#print math.sqrt(self.zradius)
 				
 	
 	def add_frame(self, frame):
@@ -90,12 +84,10 @@ class Multiframe(pygame.sprite.Sprite):
 		#total_pts.add(self.ctr if ctr is None else ctr)
 		#for zpt in self.all_pts.add(self.ctr):
 		#for zpt in self.zpts + [self.center]:
-		all_pts = self.all_pts
+		#all_pts = self.all_pts
 		if ctr is None:
 			ctr = self.ctr
-		else:
-			all_pts = all_pts.update(self.ctr)
-		for zpt in all_pts:
+		for zpt in self.all_pts:
 			if ignore == 'x':
 				vals = (zpt.y - ctr.y, zpt.z - ctr.z)
 			elif ignore == 'y':
@@ -103,21 +95,22 @@ class Multiframe(pygame.sprite.Sprite):
 			elif ignore == 'z':
 				vals = (zpt.y - ctr.y, zpt.x - ctr.x)
 			v1, v2 = vals
-			d = math.hypot(v1, v2)
-			theta = math.atan2(v1, v2) + radians
+			d = hypot(v1, v2)
+			theta = atan2(v1, v2) + radians
 			if ignore == 'x':
-				zpt.z = ctr.z + d * math.cos(theta)
-				zpt.y = ctr.y + d * math.sin(theta)
+				zpt.z = ctr.z + d * cos(theta)
+				zpt.y = ctr.y + d * sin(theta)
 			elif ignore == 'y':
-				zpt.z = ctr.z + d * math.cos(theta)
-				zpt.x = ctr.x + d * math.sin(theta)
+				zpt.z = ctr.z + d * cos(theta)
+				zpt.x = ctr.x + d * sin(theta)
 			elif ignore == 'z':
-				zpt.x = ctr.x + d * math.cos(theta)
-				zpt.y = ctr.y + d * math.sin(theta)
+				zpt.x = ctr.x + d * cos(theta)
+				zpt.y = ctr.y + d * sin(theta)
 		if ctr is not self.ctr:
 			self.set_ctr()
 	
 	def update(self):
+		print len(self.all_pts)
 		if self.xtrans + self.ytrans + self.ztrans != 0:
 			self.alt_d_move(self.xtrans, self.ytrans, self.ztrans)
 		if self.xspin != 0:

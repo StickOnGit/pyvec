@@ -268,7 +268,7 @@ def main():
 				looping = False
 			elif event.type == pygame.MOUSEMOTION:
 				nX, nY = pygame.mouse.get_pos()
-				playerObj.d_move((nX - playerObj.ctr.x), (nY - playerObj.ctr.y))
+				playerObj.alt_d_move((nX - playerObj.ctr.x), (nY - playerObj.ctr.y))
 			elif event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_w:
 					playerObj.ztrans += TRANSUNIT
@@ -293,6 +293,7 @@ def main():
 				good_visible(newShot)
 
 		ALLQ.update()
+		#playerObj.alt_rotate(.1, 'x', vview.H_ZPT)
 		for obj in GOODQ:
 			###check to see if any zpt.zs are in the same range
 			###if so, create hit-boxes from minmax pt range and check again
