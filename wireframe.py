@@ -6,8 +6,10 @@ class Wireframe(pygame.sprite.Sprite):
 	def __init__(self, zpts, color=(26, 80, 100), width=2):
 		pygame.sprite.Sprite.__init__(self)
 		self.zpts = [pt for pt in zpts]
+		#self.zpts = set(zpt for zpt in zpts)
 		self.shapes = []
-		self.lines = []
+		#self.lines = []
+		self.lines = set()
 		self.color = color
 		self.width = width
 		self.own_ctr()
@@ -20,14 +22,15 @@ class Wireframe(pygame.sprite.Sprite):
 		
 	def set_line(self, ptindex1, ptindex2):
 		"""Set a line by the index of the point within obj.zpts list."""
-		self.lines.append((self.zpts[ptindex1], self.zpts[ptindex2]))
+		#self.lines.append((self.zpts[ptindex1], self.zpts[ptindex2]))
+		self.lines.add((self.zpts[ptindex1], self.zpts[ptindex2]))
 		
 	def set_lines(self, pts, connect=True):
 		"""Set a series of lines by their index in obj.zpts.
 		First arg should be tuple of ints; second optional arg is for
 		whether or not the last point should connect to the first. Defaults True."""
 		firstpoint = pts[0]
-		for index in range(0, len(pts)-1):
+		for index in xrange(0, len(pts)-1):
 			self.set_line(pts[index], pts[index+1])
 			if connect:
 				self.set_line(pts[-1], firstpoint)
@@ -51,18 +54,17 @@ class Wireframe(pygame.sprite.Sprite):
 			zpt.y += deltaY
 			zpt.z += deltaZ
 			
-	def translate(self, newX=0, newY=0, newZ=0):
-		"""Somehow this used to not be exactly like delta_move, but now it is.
-		I don't know why."""
-		for zpt in self.zpts + [self.center]:
-			zpt.x += newX
-			zpt.y += newY
-			zpt.z += newZ
+	def move_ctr_to_pt(self, newX=None, newY=None, newZ=None):
+		"""Move the wireframe by setting its center to a new point."""
+		passX = newX - self.center.x if newX is not None else 0
+		passY = newY - self.center.y if newY is not None else 0
+		passZ = newZ - self.center.z if newZ is not None else 0
+		self.delta_move(passX, passY, passZ)
 			
 	def good_rotate(self, radians, ignore, ctr=None):
 		if ctr is None:
 			ctr = self.center
-		for zpt in self.zpts:
+		for zpt in self.zpts + [self.center]:
 			if ignore == 'x':
 				vals = (zpt.y - ctr.y, zpt.z - ctr.z)
 			elif ignore == 'y':
@@ -81,16 +83,13 @@ class Wireframe(pygame.sprite.Sprite):
 			elif ignore == 'z':
 				zpt.x = ctr.x + d * math.cos(theta)
 				zpt.y = ctr.y + d * math.sin(theta)
-		self.own_ctr()
 		
 	def pts_are_tied(self, pt1, pt2):
 		"""Checks to see if two points are in a line."""
-		answer = False
 		for line in self.lines:
 			if pt1 in line and pt2 in line:
-				answer = True
-			else: pass
-		return answer
+				return True
+		return False
 		
 	def find_minmax(self):
 		allvals = [[zpt.x for zpt in self.zpts],

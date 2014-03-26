@@ -92,9 +92,19 @@ NECK_STAR = shapef.reg_poly(x=503, y=20, z=280, sides=4, rad=20)
 NECK_STAR.good_rotate(math.pi/2, 'y')
 NECK_STAR.zpts[2].z += 15
 NECK_STAR.zpts[0].z -= 15
-STARDRIVE = shapef.prism(x=500, y=40, z=250, sides=12, lng=25, dep=100)
+STARDRIVE = shapef.prism(x=500, y=40, z=250, sides=18, lng=25, dep=100)
 ###port nacelle
-PORT_NAC = shapef.prism(x=450, y=-20, z=160, sides=12, lng=20, dep=180)
+PORT_NAC = shapef.prism(x=450, y=-20, z=160, sides=12, lng=20, dep=170)
+PORT_THRUST = shapef.prism(x=450,y=-20, z=PORT_NAC.zpts[0].z-10, sides=12, lng=20, dep=20, color=(180, 0, 0))
+
+def carve(wfobj, shove):
+	lowpt = max(wfobj.zpts, key=lambda zpt: zpt.y)
+	carvers = wfobj.zpts[:(len(wfobj.zpts)/2)]
+	for zpt in carvers:
+		sweep = abs(zpt.y - lowpt.y)
+		chunk = math.sqrt(abs(shove**2 - sweep**2))
+		if sweep <= shove:
+			zpt.z += chunk
 
 PORT_PYLON = shapef.reg_poly(x=475, y=10, z=240, sides=4, rad=40)
 PORT_PYLON.good_rotate(math.pi/2, 'y')
@@ -102,7 +112,11 @@ PORT_PYLON.good_rotate(math.pi/-4, 'z')
 PORT_PYLON.zpts[2].z -= 35
 PORT_PYLON.zpts[1].z -= 35
 ###starboard nacelle
-STAR_NAC = shapef.prism(x=550, y=-20, z=160, sides=12, lng=20, dep=180)
+STAR_NAC = shapef.prism(x=550, y=-20, z=160, sides=12, lng=20, dep=170)
+STAR_THRUST = shapef.prism(x=550,y=-20, z=STAR_NAC.zpts[0].z-10, sides=12, lng=20, dep=20, color=(180, 0, 0))
+carve(STAR_THRUST, 17)
+carve(PORT_THRUST, 17)
+carve(STARDRIVE, 15)
 
 STAR_PYLON = shapef.reg_poly(x=525, y=10, z=240, sides=4, rad=40)
 STAR_PYLON.good_rotate(math.pi/2, 'y')
@@ -111,7 +125,10 @@ STAR_PYLON.zpts[2].z -= 35
 STAR_PYLON.zpts[1].z -= 35
 
 
-playerObj = Multiframe(wfs=(SAUCER, NECK_PORT, NECK_STAR, STARDRIVE, PORT_PYLON, PORT_NAC, STAR_PYLON, STAR_NAC))
+playerObj = Multiframe(wfs=(SAUCER, NECK_PORT, NECK_STAR, 
+							STARDRIVE, 
+							PORT_PYLON, PORT_THRUST, PORT_NAC, 
+							STAR_PYLON, STAR_NAC, STAR_THRUST))
 
 def engine_flare(obj, func):
 	def inner(*args, **kwargs):
@@ -308,7 +325,7 @@ def main():
 				#			print "boom at (%d, %d, %d)" % badzpt.as_t()
 		
 		vview.wipe()
-		vview.drawq_draw(DRAWQ)
+		vview.current_draw(DRAWQ)
 		vview.flip()
 		
 		if time_till_fps < 0:

@@ -25,6 +25,9 @@ PAD_C = CAM_PT.z - PAD
 
 ALLCAM = Wireframe(zpts=(H_ZPT, CAM_PT), color=BLACK)
 
+##global for new_mf_draw testing##
+camToDepth = abs(CAM_PT.z) + DEPTH
+
 
 def set_horizon(xytuple):
 	HORIZON = xytuple
@@ -37,11 +40,13 @@ def set_hzpt(xytuple):
 	HOR_X = H_ZPT.x / float(WIDTH)
 	HOR_Y = H_ZPT.y / float(HEIGHT)
 	return HOR_X, HOR_Y
+
+HOR_X, HOR_Y = set_hzpt((H_ZPT.x, H_ZPT.y))
 	
 def wipe():
 	SCREEN.fill(BLACK)
 
-flip = pygame.display.flip
+flip = pygame.display.update
 
 def draw_obj_img(obj):
 	SCREEN.blit(obj.image, obj.rect.center)
@@ -120,11 +125,23 @@ def use_hzpt_pos(zpt):
 	newY = ((H_ZPT.y) - ((-zpt.y + H_ZPT.y) * yoff)) * zoff + (HEIGHT * HOR_Y * zinv)
 	return (newX, newY)
 	
+def unpack_use_hzpt_pos(zpt, horizon=H_ZPT, hor_x=HOR_X, hor_y=HOR_Y, total_d=camToDepth, gold=GOLD):
+	lx, ly, lz = zpt.x, zpt.y, zpt.z
+	#zoff = camToDepth / (abs(CAM_PT.z - lz)**2/(camToDepth/GOLD))
+	zoff = total_d / (abs(CAM_PT.z - lz)**2/(total_d/gold))
+	zinv = 1.0 - zoff
+	xoff = 1.0 - ((abs(lx - horizon.x)) / WIDTH)/ F_O_V
+	yoff = 1.0 - ((abs(ly - horizon.y)) / HEIGHT)/ F_O_V
+	newX = (((lx - horizon.x) * xoff) + horizon.x) * zoff + (WIDTH * hor_x * zinv)
+	newY = ((horizon.y) - ((-ly + horizon.y) * yoff)) * zoff + (HEIGHT * hor_y * zinv)
+	return (newX, newY)
+	
 def new_shape(shape):
 	"""Returns a tuple of adjusted shape points."""
 	shape_pts = ()
 	for zpt in shape:
-		shape_pts = (use_hzpt_pos(zpt), ) + shape_pts
+		#shape_pts = (use_hzpt_pos(zpt), ) + shape_pts
+		shape_pts = (unpack_use_hzpt_pos(zpt), ) + shape_pts
 	return shape_pts
 	
 def new_wireframe(wfobj):
@@ -168,8 +185,6 @@ def multiframe_draw(obj):
 				newcolor = [int(x * colormod) for x in wf.color]
 				pygame.draw.polygon(SCREEN, newcolor, drawnpoints, widthmod)
 
-##global for new_mf_draw testing##
-camToDepth = abs(CAM_PT.z) + DEPTH
 
 
 def new_mf_draw(obj):
@@ -202,8 +217,8 @@ def new_mf_draw(obj):
 	for drawobj in drawqueue:
 		pygame.draw.polygon(SCREEN, drawobj[0], drawobj[1], drawobj[2])
 		
-def get_colormod(shape):
-	colormod = 1.0 - ((sum(zpt.z for zpt in shape) / len(shape)) / (camToDepth * GOLD))
+def get_colormod(shape, gold=GOLD):
+	colormod = 1.0 - ((sum(zpt.z for zpt in shape) / len(shape)) / (camToDepth * gold))
 	if colormod > 1:
 		colormod = 1
 	if colormod < 0:
@@ -226,20 +241,24 @@ def bg_draw_lines(wfobj):
 		pygame.draw.line(SCREEN, [int(x * colormod) for x in wfobj.color], twopts[0], twopts[1], widthmod)
 		#pygame.draw.line(SCREEN, map(lambda x: x * colormod, wfobj.color), twopts[0], twopts[1], widthmod)
 		
-def drawq_draw(groupobj):
+def drawq_draw(groupobj, draw_it=pygame.draw.line, wmod=get_widthmod, cmod=get_colormod, news=new_shape):
 	to_draw = []
 	for wfobj in groupobj:
-		widthmod = get_widthmod(wfobj)
+		#widthmod = get_widthmod(wfobj)
+		widthmod = wmod(wfobj)
 		for line in wfobj.lines:
-			colormod = get_colormod(line)
-			to_draw.append((new_shape(line), 
+			#colormod = get_colormod(line)
+			colormod = cmod(line)
+			#to_draw.append((new_shape(line),
+			to_draw.append((news(line), 
 							[x * colormod for x in wfobj.color], 
 							widthmod, 
 							(line[0].z + line[1].z) / -2))
 	for drawline in sorted(to_draw, key=lambda x: x[3]):
-		pygame.draw.line(SCREEN, drawline[1], drawline[0][0], drawline[0][1], drawline[2])
+		#pygame.draw.line(SCREEN, drawline[1], drawline[0][0], drawline[0][1], drawline[2])
+		draw_it(SCREEN, drawline[1], drawline[0][0], drawline[0][1], drawline[2])
 		
+def passview(athing):
+	pass
 	
-	
-HOR_X, HOR_Y = set_hzpt((H_ZPT.x, H_ZPT.y))
 current_draw = drawq_draw		##makes testing new methods simpler :/
