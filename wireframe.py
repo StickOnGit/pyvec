@@ -12,11 +12,17 @@ class Wireframe(pygame.sprite.Sprite):
 		self.width = width
 		self.own_ctr()
 		
-	def set_shape(self, *zpts):
-		newShape = []
+	def set_shape(self, zpts):
+		"""
+		#newShape = []
+		newShape = ()
 		for index in zpts:
-			newShape.append(self.zpts[index])
-		self.shapes.append(tuple(newShape))
+			#newShape.append(self.zpts[index])
+			newShape = newShape + (self.zpts[index],)
+		#self.shapes.append(tuple(newShape))
+		self.shapes.append(newShape)
+		"""
+		self.shapes.append(zpts)
 		
 	def set_line(self, ptindex1, ptindex2):
 		"""Set a line by the index of the point within obj.zpts list."""

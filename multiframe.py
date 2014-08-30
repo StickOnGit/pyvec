@@ -110,7 +110,7 @@ class Multiframe(pygame.sprite.Sprite):
 			self.set_ctr()
 	
 	def update(self):
-		print len(self.all_pts)
+		#print len(self.all_pts)
 		if self.xtrans + self.ytrans + self.ztrans != 0:
 			self.alt_d_move(self.xtrans, self.ytrans, self.ztrans)
 		if self.xspin != 0:

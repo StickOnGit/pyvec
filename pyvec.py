@@ -105,6 +105,10 @@ def carve(wfobj, shove):
 		chunk = math.sqrt(abs(shove**2 - sweep**2))
 		if sweep <= shove:
 			zpt.z += chunk
+	for zpt in carvers:
+		tielist = [otherpt for otherpt in carvers if int(otherpt.y) == int(zpt.y)]
+		if len(tielist) == 2:
+			wfobj.set_line(wfobj.zpts.index(tielist[0]), wfobj.zpts.index(tielist[1]))
 
 PORT_PYLON = shapef.reg_poly(x=475, y=10, z=240, sides=4, rad=40)
 PORT_PYLON.good_rotate(math.pi/2, 'y')

@@ -3,6 +3,9 @@ from zpt import Zpt
 from wireframe import Wireframe
 import random
 import math
+from multiprocessing import Pool
+
+ViewPool = Pool(processes=4)
 
 GOLD = 1.618033
 
@@ -50,6 +53,16 @@ flip = pygame.display.update
 
 def draw_obj_img(obj):
 	SCREEN.blit(obj.image, obj.rect.center)
+	
+def zoom_zpt_pos(zpt):
+	z = 1.0 - (zpt.z / DEPTH)
+	screenX = zpt.x - HOR_X / z 
+	screenY = zpt.y - HOR_Y / z
+	
+	
+	return screenX, screenY
+	
+	
 	
 def new_zpt_pos(zpt):
 	"""Changes a zpt to an (x, y) tuple after adjusting for depth."""
@@ -140,8 +153,8 @@ def new_shape(shape):
 	"""Returns a tuple of adjusted shape points."""
 	shape_pts = ()
 	for zpt in shape:
-		#shape_pts = (use_hzpt_pos(zpt), ) + shape_pts
 		shape_pts = (unpack_use_hzpt_pos(zpt), ) + shape_pts
+		#shape_pts = (zoom_zpt_pos(zpt), ) + shape_pts
 	return shape_pts
 	
 def new_wireframe(wfobj):
@@ -258,7 +271,8 @@ def drawq_draw(groupobj, draw_it=pygame.draw.line, wmod=get_widthmod, cmod=get_c
 		#pygame.draw.line(SCREEN, drawline[1], drawline[0][0], drawline[0][1], drawline[2])
 		draw_it(SCREEN, drawline[1], drawline[0][0], drawline[0][1], drawline[2])
 		
-def passview(athing):
-	pass
+def proc_draw(groupobj):
+	maybe = ViewPool.apply_async(drawq_draw, [groupobj])
+	maybe.get(timeout=1)
 	
 current_draw = drawq_draw		##makes testing new methods simpler :/

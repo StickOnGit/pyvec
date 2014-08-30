@@ -80,3 +80,13 @@ def disc(x, y, z, rad=60, dep=15, color=(140, 140, 140), width=2):
 	_disc = prism(x, y, z, sides=12, lng=rad, dep=dep, color=color, width=width)
 	_disc.good_rotate(PI/2, 'x')
 	return _disc
+	
+def nested_disc(x, y, z, rad=60, dep=15, nests=2, color=(140, 140, 140), width=2):
+	_ndisc = prism(x, y, z, sides=12, lng=rad, dep=dep, color=color, width=width)
+	for ring in range(1, nests):
+		alt_h = h * float(ring/nests)
+		next = twod_zpts(x, y, z-h_d, sides, alt_h) + twod_zpts(x, y, z+h_d, sides, alt_h)
+		_ndisc.zpts += next
+		##maybe i don't fucken know whatever
+	_ndisc.good_rotate(PI/2, 'x')
+	return _ndisc
